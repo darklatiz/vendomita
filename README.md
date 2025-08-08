@@ -8,9 +8,9 @@
 This project demonstrates a clean and scalable implementation of the **Specification Pattern** in **Java 21**, applying the **Open-Closed Principle** (from the SOLID principles) to filter a dynamic product catalog of over 1500 items.
 
 It’s built with **Gradle**, features functional composition (AND, NOT), and includes a dynamic, adaptive test suite using **JUnit 5**.
-
 ---
-
+## Post explaining patterns used
+- [Open/Closed - Specification Pattern](https://laboratorios-terabyte.tech/del-caos-al-control-aplicando-el-principio-de-abierto-cerrado-con-el-patron-specification-en-java/)
 ## 📦 Features
 
 - ✅ Java 21 + Gradle
