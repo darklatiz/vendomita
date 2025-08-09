@@ -1,5 +1,7 @@
 package tech.terabyte.labs.vendomita.runner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import tech.terabyte.labs.vendomita.model.Color;
@@ -19,19 +21,20 @@ import java.util.List;
 
 @Component
 public class DemoRunner implements CommandLineRunner {
+    private Logger logger = LoggerFactory.getLogger(DemoRunner.class);
 
     @Override
     public void run(String... args) throws Exception {
         List<Product> productList = ProductGenerator.generate(50);
         Filter<Product> productFilter = (items, spec) -> items.stream().filter(spec::isSatisfied);
 
-        System.out.println("📦 Total products: " + productList.size());
-        System.out.println("RED products:");
+        logger.info("📦 Total products: {}", productList.size());
+        logger.info("RED products:");
 
         productFilter.filter(productList, new ColorSpecification(Color.RED))
-          .forEach(p -> System.out.println(" - " + p.name() + " | " + p.color()));
+          .forEach(p -> logger.info(" - {} | {}", p.name(), p.color()));
 
-        System.out.println("\n📏 LARGE BLACK products in stock:");
+        logger.info("\n📏 LARGE BLACK products in stock:");
         Specification<Product> combo = SpecsBuilder.and(
           new SizeSpecification(Size.LARGE),
           new ColorSpecification(Color.BLACK),
@@ -39,19 +42,15 @@ public class DemoRunner implements CommandLineRunner {
         );
 
         productFilter.filter(productList, combo)
-          .forEach(p -> System.out.println(" - " + p.name() + " | " + p.size() + " | " + p.color() + " | stock: " + p.inStock()));
+          .forEach(p -> logger.info(" - {} | {} | {} | {}", p.name(), p.size(), p.color(), p.inStock()));
 
-        System.out.println("💸 Products cheaper than $500 and in stock:");
+        logger.info("💸 Products cheaper than $500 and in stock:");
         Specification<Product> combo2 = SpecsBuilder.and(
           new PriceLessThanSpecification(BigDecimal.valueOf(500)),
           new InStockSpecification()
         );
 
         productFilter.filter(productList, combo2)
-          .forEach(p -> System.out.println(" - " + p.name() + " | " + p.size() + " | " + p.color() + " | stock: " + p.inStock()));
-
-
-
-
+          .forEach(p -> logger.info(" - {} | {} | {} | {}", p.name(), p.size(), p.color(), p.inStock()));
     }
 }
