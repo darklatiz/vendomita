@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: vendomita
+server:
+  port: 8081
