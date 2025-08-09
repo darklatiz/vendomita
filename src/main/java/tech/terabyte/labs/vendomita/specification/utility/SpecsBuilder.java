@@ -14,4 +14,13 @@ public class SpecsBuilder {
     public static <T> Specification<T> not(Specification<T> spec) {
         return item -> !spec.isSatisfied(item);
     }
+
+    public static <T> Specification<T> or(Specification<T>... specs) {
+        return item -> {
+            for (Specification<T> s : specs) {
+                if (s.isSatisfied(item)) return true;
+            }
+            return false;
+        };
+    }
 }
