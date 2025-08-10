@@ -16,7 +16,7 @@
         </appender>
 
         <!-- menos ruido -->
-        <logger name="org.springframework" level="INFO"/>
+        <logger name="org.springframework" level="DEBUG"/>
         <logger name="org.hibernate.SQL" level="WARN"/>
         <logger name="org.hibernate.type.descriptor.sql" level="WARN"/>
         <!-- access log separado si quieres distinguirlo en consola -->

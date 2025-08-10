@@ -18,8 +18,8 @@ import tech.terabyte.labs.vendomita.model.Color;
 import tech.terabyte.labs.vendomita.model.Product;
 import tech.terabyte.labs.vendomita.model.Size;
 import tech.terabyte.labs.vendomita.specification.Filter;
+import tech.terabyte.labs.vendomita.specification.SpecDto;
 import tech.terabyte.labs.vendomita.specification.Specification;
-import tech.terabyte.labs.vendomita.specification.factory.SpecNode;
 import tech.terabyte.labs.vendomita.specification.factory.SpecParser;
 import tech.terabyte.labs.vendomita.specification.utility.ProductGenerator;
 
@@ -32,19 +32,16 @@ import java.util.Map;
 public class VendomitaController {
 
     private List<Product> products;
-    private List<Product> lastFiltered;
     private final SpecParser specParser;
 
     public VendomitaController(SpecParser specParser) {
         this.products = new ArrayList<>();
-        this.lastFiltered = new ArrayList<>();
         this.specParser = specParser;
     }
 
-    @PostMapping("/generate")
+    @GetMapping("/generate")
     public ResponseEntity<ApiResponse<Map<String, ?>>> generate(@RequestParam(defaultValue = "50") int count) {
         this.products = ProductGenerator.generate(count);
-        this.lastFiltered = new ArrayList<>();
         var meta = Map.of("count", products.size());
         return ResponseEntity.ok(ApiResponse.success("Catalog generated", meta, meta));
     }
@@ -62,7 +59,7 @@ public class VendomitaController {
 
     @PostMapping("/filter")
     public ResponseEntity<ApiResponse<List<Product>>> filterProducts(
-      @RequestBody SpecNode root,
+      @RequestBody SpecDto root,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size) {
 
@@ -71,7 +68,7 @@ public class VendomitaController {
               .body(ApiResponse.error("No products available. Generate the catalog first with POST /api/products/generate"));
         }
 
-        Specification<Product> spec = specParser.fromNode(root);
+        Specification<Product> spec = specParser.fromDto(root);
         Filter<Product> filter = (items, s) -> items.stream().filter(s::isSatisfied);
 
         List<Product> filtered = filter.filter(products, spec).toList();
@@ -106,7 +103,7 @@ public class VendomitaController {
 
 
     @PostMapping("/download")
-    public ResponseEntity<Resource> downloadFromSpec(@RequestBody SpecNode root) {
+    public ResponseEntity<Resource> downloadFromSpec(@RequestBody SpecDto root) {
         if (products == null || products.isEmpty()) {
             var msg = "No products available. Generate the catalog first with POST /api/products/generate";
             var r = new ByteArrayResource(msg.getBytes());
@@ -116,7 +113,7 @@ public class VendomitaController {
               .body(r);
         }
 
-        Specification<Product> spec = specParser.fromNode(root);
+        Specification<Product> spec = specParser.fromDto(root);
         var filtered = products.stream().filter(spec::isSatisfied).toList();
 
         StringBuilder content = new StringBuilder("Filtered Products:\n\n");
