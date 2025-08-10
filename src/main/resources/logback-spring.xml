@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds" packagingData="true">
+
+    <!-- ===== MDC key que metes en tu CorrelationIdFilter ===== -->
+    <property name="CID_MDC_KEY" value="correlationId"/>
+
+    <!-- ===================== DEV ===================== -->
+    <springProfile name="dev,default">
+        <property name="PATTERN_CONSOLE"
+                  value="%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan(%logger{20}) - %yellow(cid=%X{${CID_MDC_KEY}}) %msg%n"/>
+
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder charset="UTF-8">
+                <pattern>${PATTERN_CONSOLE}</pattern>
+            </encoder>
+        </appender>
+
+        <!-- menos ruido -->
+        <logger name="org.springframework" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="WARN"/>
+        <logger name="org.hibernate.type.descriptor.sql" level="WARN"/>
+        <!-- access log separado si quieres distinguirlo en consola -->
+        <logger name="tech.terabyte.labs.vendomita.infra.AccessLogFilter" level="INFO" additivity="true"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- ===================== PROD ===================== -->
+    <springProfile name="prod">
+        <!-- requiere net.logstash.logback:logstash-logback-encoder -->
+        <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <timestamp/>
+                    <version/>
+                    <loggerName/>
+                    <threadName/>
+                    <logLevel/>
+                    <message/>
+                    <mdc/>          <!-- aquí viaja correlationId -->
+                    <context/>
+                    <stackTrace/>
+                </providers>
+            </encoder>
+        </appender>
+
+        <logger name="org.springframework" level="INFO"/>
+        <logger name="org.hibernate.SQL" level="WARN"/>
+        <logger name="org.hibernate.type.descriptor.sql" level="WARN"/>
+        <logger name="tech.terabyte.labs.vendomita.infra.AccessLogFilter" level="INFO" additivity="true"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE_JSON"/>
+        </root>
+    </springProfile>
+
+</configuration>
